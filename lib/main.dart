@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx6_7/getx_controller.dart';
 import 'package:getx6_7/second_screen.dart';
+import 'package:getx6_7/todolistApp/screens/home_dotoapp.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      // home: MyHomePage(),
+      home: HomeTodoApp(),
     );
   }
 }
