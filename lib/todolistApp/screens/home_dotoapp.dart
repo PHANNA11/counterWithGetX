@@ -1,7 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:get/get.dart';
+import 'package:getx6_7/todolistApp/controller/todolist_controller.dart';
 import 'package:getx6_7/todolistApp/models/todoapp_model.dart';
+import 'package:getx6_7/todolistApp/screens/edit_sceen.dart';
 import 'package:intl/intl.dart';
 
 final datformatString =
@@ -15,13 +20,9 @@ class HomeTodoApp extends StatefulWidget {
 }
 
 class _HomeTodoAppState extends State<HomeTodoApp> {
+  final TodoTaskController todoTaskController = Get.put(TodoTaskController());
   TextEditingController taskController = TextEditingController();
-  List<TodoTask> list = [
-    TodoTask(
-        title: 'write code', check: false, date: DateTime.now().toString()),
-    TodoTask(title: 'HTML code', check: true, date: DateTime.now().toString()),
-    TodoTask(title: 'JAVA code', check: false, date: DateTime.now().toString())
-  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,34 +55,55 @@ class _HomeTodoAppState extends State<HomeTodoApp> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                var item = list[index];
-                return ListTile(
-                  leading: Checkbox(
-                      value: item.check,
-                      onChanged: (value) {
-                        setState(() {
-                          item.check = value!;
-                        });
-                      }),
-                  title: Text(item.title, style: const TextStyle(fontSize: 20)),
-                  subtitle: Text(item.date),
-                );
-              },
+            child: GetBuilder<TodoTaskController>(
+              builder: ((controller) => ListView.builder(
+                    itemCount: todoTaskController.listTask.length,
+                    itemBuilder: (context, index) {
+                      var item = todoTaskController.listTask[index];
+                      return InkWell(
+                        onTap: () {
+                          Get.to(() => EditTaskScreen(todoTask: item));
+                        },
+                        child: Card(
+                          color: item.check == true
+                              ? const Color.fromARGB(255, 239, 191, 187)
+                              : null,
+                          elevation: 0,
+                          child: ListTile(
+                            leading: Checkbox(
+                                value: item.check,
+                                onChanged: (value) {
+                                  setState(() {
+                                    item.check = value!;
+                                  });
+                                }),
+                            title: Text(item.title,
+                                style: const TextStyle(fontSize: 20)),
+                            subtitle: Text(item.date),
+                            trailing: IconButton(
+                                onPressed: () async {
+                                  await todoTaskController.deleteTask(index);
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                )),
+                          ),
+                        ),
+                      );
+                    },
+                  )),
             ),
-          )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            list.add(TodoTask(
-                title: taskController.text,
-                check: false,
-                date: DateTime.now().toString()));
-          });
+        onPressed: () async {
+          await todoTaskController.addTask(TodoTask(
+              id: Random().nextInt(100),
+              title: taskController.text,
+              check: false,
+              date: DateTime.now().toString().substring(0, 10)));
         },
         child: const Icon(
           Icons.add,
